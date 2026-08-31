@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ten Thousand Coffee — Daily Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #111111;
+    --coffee-900: #111111;
+    --coffee-700: #3d3d3d;
+    --coffee-500: #767676;
+    --coffee-300: #c2c2c2;
+    --coffee-100: #e9e9e9;
+    --paper: #f2f2f2;
+    --white: #ffffff;
+    --line: rgba(17,17,17,0.16);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding:32px 16px 80px;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+  }
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+  }
+  @media (max-width:420px){
+    body{ padding:24px 14px 64px; }
+    h1{ font-size:26px; }
+    .meta{ grid-template-columns:1fr; }
+    .slot{ padding:10px; gap:10px; }
+    .thumb{ width:48px; height:48px; }
+    .slot-name{ font-size:15px; }
+  }
+  header{
+    margin-bottom:32px;
+  }
+  .eyebrow{
+    font-size:13px;
+    color:var(--coffee-500);
+    margin-bottom:6px;
+    letter-spacing:0.02em;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:32px;
+    line-height:1.15;
+    margin:0 0 4px;
+    color:var(--coffee-900);
+  }
+  .sub{
+    font-size:14px;
+    color:var(--coffee-700);
+    max-width:46ch;
+  }
+  .meta{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin:28px 0 8px;
+  }
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .field.full{ grid-column:1 / -1; }
+  label{
+    font-size:12px;
+    color:var(--coffee-700);
+    font-weight:600;
+  }
+  select, input[type=text], input[type=date]{
+    font-family:'Inter',sans-serif;
+    font-size:16px;
+    padding:12px;
+    border-radius:6px;
+    border:1px solid var(--line);
+    background:var(--white);
+    color:var(--ink);
+    width:100%;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  select:focus, input:focus{
+    outline:2px solid var(--coffee-500);
+    outline-offset:1px;
+  }
+  .progress-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:36px 0 14px;
+  }
+  .progress-label{
+    font-size:13px;
+    color:var(--coffee-700);
+    font-weight:600;
+  }
+  .progress-track{
+    height:4px;
+    background:var(--coffee-100);
+    border-radius:2px;
+    overflow:hidden;
+    margin-bottom:24px;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--coffee-900);
+    width:0%;
+    transition:width .25s ease;
+  }
+  .slots{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .slot{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px;
+    cursor:pointer;
+    transition:border-color .15s ease;
+    position:relative;
+  }
+  .slot:hover{ border-color:var(--coffee-500); }
+  .slot.done{ border-color:var(--coffee-900); }
+  .thumb{
+    width:56px;
+    height:56px;
+    border-radius:6px;
+    background:var(--coffee-100);
+    flex-shrink:0;
+    background-size:cover;
+    background-position:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--coffee-500);
+    font-size:20px;
+    font-family:'Fraunces',serif;
+  }
+  .slot-info{ flex:1; min-width:0; }
+  .slot-num{
+    font-size:11px;
+    color:var(--coffee-500);
+    font-weight:600;
+  }
+  .slot-name{
+    font-size:16px;
+    font-weight:600;
+    color:var(--coffee-900);
+  }
+  .slot-status{
+    font-size:12px;
+    color:var(--coffee-500);
+  }
+  .slot.done .slot-status{ color:var(--coffee-900); }
+  .check{
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    border:1.5px solid var(--coffee-300);
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .slot.done .check{
+    background:var(--coffee-900);
+    border-color:var(--coffee-900);
+  }
+  .slot.done .check svg{ display:block; }
+  .check svg{ display:none; width:12px; height:12px; }
+  .remove-btn{
+    position:absolute;
+    top:4px;
+    right:4px;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:var(--coffee-900);
+    color:var(--white);
+    border:none;
+    font-size:13px;
+    line-height:1;
+    cursor:pointer;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    touch-action:manipulation;
+  }
+  .slot.done .remove-btn{ display:flex; }
+  input[type=file]{ display:none; }
+
+  .actions{
+    margin-top:32px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  button.primary{
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    font-weight:600;
+    padding:14px 20px;
+    border-radius:8px;
+    border:none;
+    background:var(--coffee-900);
+    color:var(--white);
+    cursor:pointer;
+    transition:opacity .15s ease;
+  }
+  button.primary:disabled{
+    background:var(--coffee-300);
+    cursor:not-allowed;
+  }
+  .hint{
+    font-size:12px;
+    color:var(--coffee-500);
+    text-align:center;
+  }
+  .result{
+    margin-top:24px;
+    display:none;
+    flex-direction:column;
+    gap:12px;
+    align-items:center;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:16px;
+  }
+  .result.show{ display:flex; }
+  .result img{
+    width:100%;
+    border-radius:6px;
+    border:1px solid var(--line);
+  }
+  a.download{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--white);
+    background:var(--coffee-700);
+    padding:10px 18px;
+    border-radius:6px;
+    text-decoration:none;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Ten Thousand Coffee</div>
+    <h1>Daily task checklist</h1>
+    <div class="sub">Upload one photo per task to confirm closing or opening duties are done, then generate a single image to post in Slack.</div>
+  </header>
+
+  <div class="meta">
+    <div class="field">
+      <label for="location">Location</label>
+      <select id="location">
+        <option value="1410 Broadway (BRD)">1410 Broadway (BRD)</option>
+        <option value="750 3rd Ave">750 3rd Ave</option>
+        <option value="14 Wall Street (14W)">14 Wall Street (14W)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="date">Date</label>
+      <input type="date" id="date">
+    </div>
+    <div class="field full">
+      <label for="employee">Completed by</label>
+      <input type="text" id="employee" placeholder="Employee name">
+    </div>
+  </div>
+
+  <div class="progress-row">
+    <span class="progress-label">Progress</span>
+    <span class="progress-label" id="progressCount">0 of 6</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="slots" id="slots"></div>
+
+  <div class="actions">
+    <button class="primary" id="generateBtn" disabled>Generate Slack image</button>
+    <div class="hint" id="hintText">Upload all 6 photos to generate</div>
+  </div>
+
+  <div class="result" id="result">
+    <img id="resultImg" alt="Checklist summary">
+    <a class="download" id="downloadLink" download="checklist.png">Download image</a>
+  </div>
+</div>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+<script>
+const TASKS = [
+  { name: "Task List", hint: "photo of completed checklist" },
+  { name: "Kitchen", hint: "clean, stocked, ready" },
+  { name: "Merchandise", hint: "display and shelving" },
+  { name: "Bar", hint: "espresso station and wells" },
+  { name: "Customer Area / Condiment Station", hint: "seating and condiments" },
+  { name: "Bathroom", hint: "clean and stocked" }
+];
+
+const state = new Array(TASKS.length).fill(null); // dataURL per slot
+
+const slotsEl = document.getElementById('slots');
+const dateInput = document.getElementById('date');
+dateInput.value = new Date().toISOString().slice(0,10);
+
+TASKS.forEach((task, i) => {
+  const slot = document.createElement('div');
+  slot.className = 'slot';
+  slot.id = 'slot-' + i;
+  slot.innerHTML = `
+    <div class="thumb" id="thumb-${i}">${i+1}</div>
+    <div class="slot-info">
+      <div class="slot-num">Photo ${i+1} of ${TASKS.length}</div>
+      <div class="slot-name">${task.name}</div>
+      <div class="slot-status" id="status-${i}">Tap to upload — ${task.hint}</div>
+    </div>
+    <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <button class="remove-btn" id="remove-${i}" title="Remove photo">✕</button>
+    <input type="file" accept="image/*" capture="environment" id="file-${i}">
+  `;
+  slotsEl.appendChild(slot);
+
+  const fileInput = slot.querySelector(`#file-${i}`);
+  slot.addEventListener('click', (e) => {
+    if (e.target.closest('.remove-btn')) return;
+    fileInput.click();
+  });
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      state[i] = ev.target.result;
+      updateSlot(i);
+    };
+    reader.readAsDataURL(file);
+  });
+  slot.querySelector(`#remove-${i}`).addEventListener('click', (e) => {
+    e.stopPropagation();
+    state[i] = null;
+    fileInput.value = '';
+    updateSlot(i);
+  });
+});
+
+function updateSlot(i) {
+  const slot = document.getElementById('slot-' + i);
+  const thumb = document.getElementById('thumb-' + i);
+  const status = document.getElementById('status-' + i);
+  if (state[i]) {
+    slot.classList.add('done');
+    thumb.style.backgroundImage = `url(${state[i]})`;
+    thumb.textContent = '';
+    status.textContent = 'Uploaded';
+  } else {
+    slot.classList.remove('done');
+    thumb.style.backgroundImage = '';
+    thumb.textContent = i + 1;
+    status.textContent = `Tap to upload — ${TASKS[i].hint}`;
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = state.filter(Boolean).length;
+  document.getElementById('progressCount').textContent = `${done} of ${TASKS.length}`;
+  document.getElementById('progressFill').style.width = (done / TASKS.length * 100) + '%';
+  const btn = document.getElementById('generateBtn');
+  const hint = document.getElementById('hintText');
+  if (done === TASKS.length) {
+    btn.disabled = false;
+    hint.textContent = 'All photos in — ready to generate';
+  } else {
+    btn.disabled = true;
+    hint.textContent = `Upload all 6 photos to generate (${TASKS.length - done} left)`;
+  }
+}
+
+function loadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.src = src;
+  });
+}
+
+function drawCover(ctx, img, x, y, w, h) {
+  const imgRatio = img.width / img.height;
+  const cellRatio = w / h;
+  let sx, sy, sw, sh;
+  if (imgRatio > cellRatio) {
+    sh = img.height;
+    sw = sh * cellRatio;
+    sx = (img.width - sw) / 2;
+    sy = 0;
+  } else {
+    sw = img.width;
+    sh = sw / cellRatio;
+    sx = 0;
+    sy = (img.height - sh) / 2;
+  }
+  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+}
+
+document.getElementById('generateBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+
+  const images = await Promise.all(state.map(loadImage));
+
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const W = 1200;
+  const pad = 28;
+  const cols = 2, rows = 3;
+  const gap = 16;
+  const cellW = (W - pad*2 - gap*(cols-1)) / cols;
+  const cellH = cellW * 0.82;
+  const labelH = 44;
+  const headerH = 168;
+  const footerH = 40;
+  const gridH = rows * (cellH + labelH) + (rows-1)*gap;
+  const H = headerH + gridH + pad*2 + footerH;
+
+  canvas.width = W;
+  canvas.height = H;
+
+  // background
+  ctx.fillStyle = '#f2f2f2';
+  ctx.fillRect(0, 0, W, H);
+
+  // header
+  const location = document.getElementById('location').value;
+  const employee = document.getElementById('employee').value.trim() || '—';
+  const dateVal = document.getElementById('date').value;
+  const dateFormatted = dateVal ? new Date(dateVal + 'T00:00:00').toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) : '—';
+
+  ctx.fillStyle = '#767676';
+  ctx.font = '600 15px Inter, sans-serif';
+  ctx.fillText('TEN THOUSAND COFFEE', pad, 44);
+
+  ctx.fillStyle = '#111111';
+  ctx.font = '500 40px Fraunces, serif';
+  ctx.fillText('Daily task checklist', pad, 88);
+
+  ctx.fillStyle = '#3d3d3d';
+  ctx.font = '500 16px Inter, sans-serif';
+  ctx.fillText(`${location}  ·  ${dateFormatted}  ·  Completed by ${employee}`, pad, 118);
+
+  ctx.strokeStyle = 'rgba(17,17,17,0.16)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad, headerH - 20);
+  ctx.lineTo(W - pad, headerH - 20);
+  ctx.stroke();
+
+  // grid
+  let idx = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = pad + c * (cellW + gap);
+      const y = headerH + r * (cellH + labelH + gap);
+      drawCover(ctx, images[idx], x, y, cellW, cellH);
+      ctx.strokeStyle = 'rgba(17,17,17,0.16)';
+      ctx.strokeRect(x, y, cellW, cellH);
+
+      ctx.fillStyle = '#111111';
+      ctx.font = '600 16px Inter, sans-serif';
+      ctx.fillText(`${idx+1}. ${TASKS[idx].name}`, x, y + cellH + 26);
+      idx++;
+    }
+  }
+
+  // footer
+  ctx.fillStyle = '#767676';
+  ctx.font = '400 12px Inter, sans-serif';
+  const stamp = new Date().toLocaleString('en-US');
+  ctx.fillText(`Generated ${stamp}`, pad, H - 18);
+
+  const dataUrl = canvas.toDataURL('image/png');
+  document.getElementById('resultImg').src = dataUrl;
+  const link = document.getElementById('downloadLink');
+  link.href = dataUrl;
+  const safeLocation = location.replace(/[^a-z0-9]+/gi, '-');
+  link.download = `TT-Checklist-${safeLocation}-${dateVal || 'undated'}.png`;
+  document.getElementById('result').classList.add('show');
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  btn.textContent = 'Generate Slack image';
+  updateProgress();
+});
+</script>
+</body>
+</html>
